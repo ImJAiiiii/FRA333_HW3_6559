@@ -8,13 +8,14 @@
 '''
 #import library
 import numpy as np
+from math import pi
 import roboticstoolbox as rtb
 import matplotlib
 matplotlib.use('TkAgg')  # บังคับใช้ Tkinter backend
 import matplotlib.pyplot as plt
 
 from HW3_utils import FKHW3
-from FRA333_HW3_6559 import endEffectorJacobianHW3
+from FRA333_HW3_6559 import endEffectorJacobianHW3, checkSingularityHW3, computeEffortHW3
 from spatialmath import SE3
 
 #define variable
@@ -25,19 +26,20 @@ d_4 = 0.109
 d_5 = 0.093
 d_6 = 0.082
 q_initial = [0, 0, 0]
+q_singulality = [0, 0, pi]
+w = np.array([0, 0, 0, 10, 0, 0])
 
-#Find DH parameter
-L1 = rtb.RevoluteDH(a=0, alpha=0, d=d_1, offset=np.pi)  # ข้อต่อที่ 1
-L2 = rtb.RevoluteDH(a=0, alpha=np.pi/2, d=0, offset=0)  # ข้อต่อที่ 2
-L3 = rtb.RevoluteDH(a=-a_2, alpha=0,  d=0, offset=0)  # ข้อต่อที่ 3
-
-robot = rtb.DHRobot([L1, L2, L3], 
-                    tool=SE3.Rt(np.array([[0, 0, -1],
-                                          [0, 1, 0],
-                                          [1, 0, 0]]),
-                                np.array([-(a_3+d_6), -d_5, d_4]))
-                    , name='3DOFRobot')
-
+#Find MDH parameter
+robot = rtb.DHRobot([
+                rtb.RevoluteMDH(alpha=0, a=0, d=d_1, offset=pi), 
+                rtb.RevoluteMDH(alpha=pi/2, a=0, d=0, offset=0),
+                rtb.RevoluteMDH(alpha=0, a=-a_2,  d=0, offset=0)], 
+                    tool = SE3([
+                    [0, 0, -1, -(a_3 + d_6)],
+                    [0, 1, 0, -d_5],
+                    [1, 0, 0, d_4],
+                    [0, 0, 0, 1]]),
+                    name = "3DOF_Robot")
 
 #===========================================<ตรวจคำตอบข้อ 1>====================================================#
 #code here
@@ -46,30 +48,55 @@ def check_results_with_robotics_toolbox(q: list[float]):
      # คำนวณ Jacobian ด้วย Robotics Toolbox
     J_toolbox = robot.jacobe(q)
     
-    # คำนวณ Jacobian ด้วยฟังก์ชันที่คุณเขียนเอง
-    J_custom = endEffectorJacobianHW3(q)
-    
-    # เปรียบเทียบ Jacobian
-    print("Jacobian จาก Robotics Toolbox:\n", J_toolbox)
-    print("Jacobian จากโค้ดที่เขียน:\n", J_custom)
-    difference_jacobian = np.abs(J_toolbox - J_custom)
-    print("ความแตกต่างระหว่าง Jacobian:\n", difference_jacobian)
-    print(np.allclose(J_toolbox, J_custom, atol=1e-6))
+    return J_toolbox
 
 #==============================================================================================================#
 #===========================================<ตรวจคำตอบข้อ 2>====================================================#
 #code here
+def check_singularity_with_robotics_toolbox(q: list[float]):
+    J_toolbox = robot.jacobe(q)
+    
+    J_toolbox_reduced = J_toolbox[:3, :3]
 
+    det_J_toolbox = np.linalg.det(J_toolbox_reduced)
+
+    if abs(det_J_toolbox) < 0.001:
+        return 1  # Near singularity
+    else:
+        return 0  # Not near singularity
+    
 #==============================================================================================================#
 #===========================================<ตรวจคำตอบข้อ 3>====================================================#
 #code here
+def check_effort_with_robotics_toolbox(q:list[float], w:list[float])->list[float]:
+    J_toolbox = robot.jacobe(q)
+
+    tau_toolbox = np.dot(J_toolbox.T, w)
+
+    tau = computeEffortHW3(q, w)
+    print("My tua: ", tau)
+    print("tau with  robotics toolbox: ",tau_toolbox)
+    print("Differance :", np.abs(tau_toolbox - tau))
 
 #==============================================================================================================#
-q = q_initial  # ค่าข้อต่อสำหรับการทดสอบ
-# print(robot)
-# robot.plot([0, 0, 0])
-# plt.show()
-# input("Press Enter to exit...")  # รอ input ก่อนปิดโปรแกรม
 
-check_results_with_robotics_toolbox(q)
+print("------------------------check Jacobian------------------------")
+J = endEffectorJacobianHW3(q_initial)
+print("From my code - Jacobian: \n", J)
+J_toolbox = check_results_with_robotics_toolbox(q_initial)
+print("From robotics toolbox: \n", J_toolbox)
+print("Differance Jacobin: \n", np.abs(J_toolbox-J))
+print("Jacobian ที่เขียนเองถูกต้องหรือไม่: ", np.allclose(J_toolbox, J, atol=0.001))
+
+print("-----------------------check Singularity-----------------------")
+flag = checkSingularityHW3(q_singulality)
+print("From my code - Near singularity:", flag)
+flag_toolbox = check_singularity_with_robotics_toolbox(q_singulality)
+print("From robotics toolbox - Near singularity:", flag_toolbox)
+
+print("-------------------------check Effort-------------------------")
+tau = computeEffortHW3(q_initial, w)
+print("From my code - Efford:", tau)
+tau_toolbox = check_effort_with_robotics_toolbox(q_initial, w)
+print("From robotics toolbox - Efford:", tau_toolbox)
 
