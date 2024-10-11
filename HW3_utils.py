@@ -75,11 +75,11 @@ def FKHW3(q):
 
     return R,P,R_e,p_e
 
-# R,P,R_e,p_e = FKHW3([0, 0, 0])
-# print("R = \n" , R)
-# print("P = \n", P)
+R,P,R_e,p_e = FKHW3([0, 0, 0])
+print("R = \n" , R)
+print("P = \n", P)
 # print("Pe = \n", p_e)
-# print("Re = \n", R_e)
+print("Re = \n", R_e)
 # for  i in range(3):
 #     print(f"Z{i+1} =", R[:, 2, i])
 #     print(f"P{i+1} =", P[:, i])

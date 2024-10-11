@@ -26,7 +26,7 @@ d_4 = 0.109
 d_5 = 0.093
 d_6 = 0.082
 q_initial = [0, 0, 0]
-q_singulality = [0, 0, pi]
+q_singulality = [0, pi/4, 3.13]
 w = np.array([0, 0, 0, 10, 0, 0])
 
 #Find MDH parameter
@@ -60,6 +60,8 @@ def check_singularity_with_robotics_toolbox(q: list[float]):
 
     det_J_toolbox = np.linalg.det(J_toolbox_reduced)
 
+    print("det_J_toolbox: ", det_J_toolbox)
+
     if abs(det_J_toolbox) < 0.001:
         return 1  # Near singularity
     else:
@@ -73,10 +75,7 @@ def check_effort_with_robotics_toolbox(q:list[float], w:list[float])->list[float
 
     tau_toolbox = np.dot(J_toolbox.T, w)
 
-    tau = computeEffortHW3(q, w)
-    print("My tua: ", tau)
-    print("tau with  robotics toolbox: ",tau_toolbox)
-    print("Differance :", np.abs(tau_toolbox - tau))
+    return tau_toolbox
 
 #==============================================================================================================#
 

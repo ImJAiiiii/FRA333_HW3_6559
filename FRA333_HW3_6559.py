@@ -9,7 +9,6 @@ from HW3_utils import FKHW3
 import numpy as np
 
 #=============================================<คำตอบข้อ 1>======================================================#
-#code here
 def endEffectorJacobianHW3(q: list[float]) -> np.ndarray:
    # Use FKHW3 to get the position and rotation matrices
     R, P, R_e, p_e = FKHW3(q)  # Forward Kinematics
@@ -19,7 +18,7 @@ def endEffectorJacobianHW3(q: list[float]) -> np.ndarray:
     # Initialize a 6xn Jacobian matrix (3 for translation, 3 for rotation)
     J = np.zeros((6, n))
     
-    # Iterate over each joint to compute the Jacobian columns
+    # Iterate over each joint to compute the columns
     for i in range(n):
         p_i = P[:, i]  # Position of joint i in the base frame
         
@@ -39,6 +38,7 @@ def endEffectorJacobianHW3(q: list[float]) -> np.ndarray:
 
     # Combine both transformed parts
     J_e = np.vstack((J_e_translational, J_e_rotational))
+    
     return J_e
 #==============================================================================================================#
 #=============================================<คำตอบข้อ 2>======================================================#
@@ -52,7 +52,7 @@ def checkSingularityHW3(q:list[float])->bool:
     
     # Compute the determinant of the reduced Jacobian
     det_J = np.linalg.det(J_reduced)
-    
+    print("det_J: ", det_J)
     # Check if the determinant is less than the threshold epsilon
     if (abs(det_J) < 0.001):
         return 1  # Near singularity
