@@ -10,7 +10,17 @@ import numpy as np
 
 #=============================================<คำตอบข้อ 1>======================================================#
 def endEffectorJacobianHW3(q: list[float]) -> np.ndarray:
-   # Use FKHW3 to get the position and rotation matrices
+    """
+    Calculate the Jacobian matrix of the robot’s end-effector.
+    
+    Input:
+        q (list[float]): Joint angles (3 values for 3R robot).
+    
+    Output:
+        J_e (np.ndarray): 6x3 Jacobian matrix for the end-effector.
+    """
+
+    # Use FKHW3 to get the position and rotation matrices
     R, P, R_e, p_e = FKHW3(q)  # Forward Kinematics
 
     n = len(q)  # Number of joints
@@ -44,7 +54,17 @@ def endEffectorJacobianHW3(q: list[float]) -> np.ndarray:
 #=============================================<คำตอบข้อ 2>======================================================#
 #code here
 def checkSingularityHW3(q:list[float])->bool:
-# Compute the full Jacobian using your custom function
+    """
+    Check if the given configuration is near a singularity.
+    
+    Input:
+        q (list[float]): Joint angles (3 values for 3R robot).
+    
+    Output:
+        bool: 1 if near singularity, 0 otherwise.
+    """
+
+    # Compute the full Jacobian using your custom function
     J = endEffectorJacobianHW3(q)
     
     # Extract the reduced Jacobian (the first 3 rows of the Jacobian, corresponding to position)
@@ -63,6 +83,17 @@ def checkSingularityHW3(q:list[float])->bool:
 #=============================================<คำตอบข้อ 3>======================================================#
 #code here
 def computeEffortHW3(q:list[float], w:list[float])->list[float]:
+    """
+    Compute the joint efforts required to achieve a given wrench at the end-effector.
+    
+    Input:
+        q (list[float]): Joint angles (3 values for 3R robot).
+        w (list[float]): Wrench vector at the end-effector (6 values: forces and torques).
+    
+    Output:
+        tau (list[float]): Joint torques/efforts (3 values).
+    """
+    
     # Compute the full Jacobian using your custom function
     J = endEffectorJacobianHW3(q)
     
