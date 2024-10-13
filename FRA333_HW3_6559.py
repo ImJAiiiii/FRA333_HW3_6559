@@ -38,7 +38,7 @@ def endEffectorJacobianHW3(q: list[float]) -> np.ndarray:
 
     # Combine both transformed parts
     J_e = np.vstack((J_e_translational, J_e_rotational))
-    
+
     return J_e
 #==============================================================================================================#
 #=============================================<คำตอบข้อ 2>======================================================#
@@ -52,7 +52,7 @@ def checkSingularityHW3(q:list[float])->bool:
     
     # Compute the determinant of the reduced Jacobian
     det_J = np.linalg.det(J_reduced)
-    print("det_J: ", det_J)
+
     # Check if the determinant is less than the threshold epsilon
     if (abs(det_J) < 0.001):
         return 1  # Near singularity

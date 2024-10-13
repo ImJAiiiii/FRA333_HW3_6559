@@ -26,8 +26,8 @@ d_4 = 0.109
 d_5 = 0.093
 d_6 = 0.082
 q_initial = [0, 0, 0]
-q_singulality = [0, pi/4, 3.13]
-w = np.array([0, 0, 0, 10, 0, 0])
+q_singulality = [0.0, 0.0, 3.0]
+#w = np.array([0, 0, 0, 10, 0, 0])
 
 #Find MDH parameter
 robot = rtb.DHRobot([
@@ -53,14 +53,30 @@ def check_results_with_robotics_toolbox(q: list[float]):
 #==============================================================================================================#
 #===========================================<ตรวจคำตอบข้อ 2>====================================================#
 #code here
+#Find all singular configurations by iterating through joint angles.
+def FindSingularity(step_size):
+    q_ranges = [np.arange(0, 2 * pi, step_size) for _ in range(3)]
+    singular_configurations = []  # Store singular configurations
+
+    # Iterate over all possible combinations of joint angles
+    for q1 in q_ranges[0]:
+        for q2 in q_ranges[1]:
+            for q3 in q_ranges[2]:
+                q = [q1, q2, q3]  # Current joint configuration
+                if check_singularity_with_robotics_toolbox(q):
+                    singular_configurations.append(q)
+
+    return singular_configurations
+
 def check_singularity_with_robotics_toolbox(q: list[float]):
+    # Compute the Jacobian matrix using the Robotics Toolbox
     J_toolbox = robot.jacobe(q)
-    
+
+    # Get the translational part of the Jacobian
     J_toolbox_reduced = J_toolbox[:3, :3]
 
+    # Compute the determinant of the Jacobian
     det_J_toolbox = np.linalg.det(J_toolbox_reduced)
-
-    print("det_J_toolbox: ", det_J_toolbox)
 
     if abs(det_J_toolbox) < 0.001:
         return 1  # Near singularity
@@ -71,14 +87,22 @@ def check_singularity_with_robotics_toolbox(q: list[float]):
 #===========================================<ตรวจคำตอบข้อ 3>====================================================#
 #code here
 def check_effort_with_robotics_toolbox(q:list[float], w:list[float])->list[float]:
+    # Compute the Jacobian matrix using the Robotics Toolbox
     J_toolbox = robot.jacobe(q)
 
+    # Calculate the joint efforts using the transpose of the Jacobian and wrench
     tau_toolbox = np.dot(J_toolbox.T, w)
 
     return tau_toolbox
 
 #==============================================================================================================#
-
+# singularity = FindSingularity(step_size=1)
+# print("Singularity:",singularity)
+#Output : [[0.0, 0.0, 3.0], [0.0, 1.0, 3.0], [0.0, 2.0, 3.0], [0.0, 3.0, 3.0], [0.0, 4.0, 3.0], [0.0, 5.0, 3.0], [0.0, 6.0, 3.0], [1.0, 0.0, 3.0], [1.0, 1.0, 3.0], [1.0, 2.0, 3.0], 
+# [1.0, 3.0, 3.0], [1.0, 4.0, 3.0], [1.0, 5.0, 3.0], [1.0, 6.0, 3.0], [2.0, 0.0, 3.0], [2.0, 1.0, 3.0], [2.0, 2.0, 3.0], [2.0, 3.0, 3.0], [2.0, 4.0, 3.0], [2.0, 5.0, 3.0], [2.0, 6.0, 3.0], 
+# [3.0, 0.0, 3.0], [3.0, 1.0, 3.0], [3.0, 2.0, 3.0], [3.0, 3.0, 3.0], [3.0, 4.0, 3.0], [3.0, 5.0, 3.0], [3.0, 6.0, 3.0], [4.0, 0.0, 3.0], [4.0, 1.0, 3.0], [4.0, 2.0, 3.0], [4.0, 3.0, 3.0], 
+# [4.0, 4.0, 3.0], [4.0, 5.0, 3.0], [4.0, 6.0, 3.0], [5.0, 0.0, 3.0], [5.0, 1.0, 3.0], [5.0, 2.0, 3.0], [5.0, 3.0, 3.0], [5.0, 4.0, 3.0], [5.0, 5.0, 3.0], [5.0, 6.0, 3.0], [6.0, 0.0, 3.0], 
+# [6.0, 1.0, 3.0], [6.0, 2.0, 3.0], [6.0, 3.0, 3.0], [6.0, 4.0, 3.0], [6.0, 5.0, 3.0], [6.0, 6.0, 3.0]]
 print("------------------------check Jacobian------------------------")
 J = endEffectorJacobianHW3(q_initial)
 print("From my code - Jacobian: \n", J)
@@ -89,13 +113,23 @@ print("Jacobian ที่เขียนเองถูกต้องหรื�
 
 print("-----------------------check Singularity-----------------------")
 flag = checkSingularityHW3(q_singulality)
-print("From my code - Near singularity:", flag)
+print("From my code - Is the configuration singular?:", flag)
 flag_toolbox = check_singularity_with_robotics_toolbox(q_singulality)
-print("From robotics toolbox - Near singularity:", flag_toolbox)
+print("From robotics toolbox - Is the configuration singular?:", flag_toolbox)
 
 print("-------------------------check Effort-------------------------")
+outputFT300 = [10, 0, 0, 0, 0, 0]
+w = np.array([
+    outputFT300[3],  # f_x
+    outputFT300[4],  # f_y
+    outputFT300[5],  # f_z
+    outputFT300[0],  # tau_x
+    outputFT300[1],  # tau_y
+    outputFT300[2]   # tau_z
+]).reshape(6, 1)
 tau = computeEffortHW3(q_initial, w)
-print("From my code - Efford:", tau)
+print("From my code - tau =", tau)
 tau_toolbox = check_effort_with_robotics_toolbox(q_initial, w)
-print("From robotics toolbox - Efford:", tau_toolbox)
+print("From robotics toolbox - tau =", tau_toolbox)
+print("Differance tau:", abs(tau_toolbox-tau))
 
