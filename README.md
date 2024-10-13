@@ -68,31 +68,9 @@ Where:
 
 Expanded form of the Jacobian:
 
-$$
-\begin{bmatrix}
-    \dot{x} \\
-    \dot{y} \\
-    \dot{z} \\
-    \dot{\alpha} \\
-    \dot{\beta} \\
-    \dot{\gamma}
-\end{bmatrix}_{6 \times 1}
-=
-\begin{bmatrix}
-    J_{11} & J_{12} & \cdots & J_{1n} \\
-    J_{21} & J_{22} & \cdots & J_{2n} \\
-    \vdots & \vdots & \ddots & \vdots \\
-    J_{61} & J_{62} & \cdots & J_{6n}
-\end{bmatrix}_{6 \times n}
-\cdot
-\begin{bmatrix}
-    \dot{q}_1 \\
-    \dot{q}_2 \\
-    \dot{q}_3 \\
-    \vdots \\
-    \dot{q}_n
-\end{bmatrix}_{n \times 1}
-$$
+<p align="center">
+  <img src="image-1.png" alt="alt text">
+</p>
 
 In this context:
 
@@ -133,11 +111,11 @@ Where:
 3. **Matrix Form**:
    The **Translational Jacobian** for the 3R robot is formed by stacking the contributions $Jv_1$, $Jv_2$, and $Jv_3$ together:
 
-    $$
-    J_v = \begin{bmatrix}
+$$
+J_v = \begin{bmatrix}
     z_1 \times (p_e - p_1) & z_2 \times (p_e - p_2) & z_3 \times (p_e - p_3)
-    \end{bmatrix}
-    $$
+\end{bmatrix}
+$$
    
 #### Finding $J_\omega$ of 3R Robot
 
@@ -178,8 +156,8 @@ $$
             0.0000000e+00 & 1.0000000e+00 & 1.0000000e+00 & 1.0000000e+00\\
             1.0000000e+00 & 6.1232343e-17 & 6.1232343e-17 & -6.1232343e-17\\
         \end{bmatrix}
-    
 $$
+
 * for $R_1$:
 
     $$
@@ -493,19 +471,19 @@ Where:
 
 $$
 w= \begin{bmatrix}
-force(f^e)\\
-moment(n^e)\\
+    force(f^e)\\
+    moment(n^e)\\
 \end{bmatrix}
 $$
 
 $$
 w= \begin{bmatrix}
-f_x\\
-f_y\\
-f_z\\
-\tau_x\\
-\tau_y\\
-\tau_z
+    f_x\\
+    f_y\\
+    f_z\\
+    \tau_x\\
+    \tau_y\\
+    \tau_z\\
 \end{bmatrix}
 $$
 
@@ -523,12 +501,12 @@ $$
 $$
 Output FT300 = 
 \begin{bmatrix}
-\tau_x \\
-\tau_y \\
-\tau_z \\
-f_x \\
-f_y \\
-f_z
+    \tau_x \\
+    \tau_y \\
+    \tau_z \\
+    f_x \\
+    f_y \\
+    f_z\\
 \end{bmatrix}
 $$
 
